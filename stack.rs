@@ -1,4 +1,4 @@
-use std::{vec, slice::{Iter, IterMut}};
+use std::{vec, slice::{Iter, IterMut}, ops::Index};
 
 #[derive(Debug)]
 #[derive(Clone)]
@@ -93,20 +93,29 @@ fn main() {
     }
 
     let mut stack2: Stack<char> = stack!([]);
-    let test = "(())";
+    let test = "(())[]";
+
+
+    let open = ['(', '[', '{'];
+    let closed = [')', ']', '}'];
 
     let mut balanced: bool = true;
 
     for c in test.chars() {
-        if c == '(' {
-            stack2.push('(');
-        } else if c == ')' {
-            if stack2.is_empty() || stack2.pop() != '(' {
+        if open.contains(&c) {
+            stack2.push(c);
+        } else {
+            let idx = closed.iter().position(|&r| r == c).unwrap();
+            if stack2.is_empty() || stack2.pop() != open[idx] {
                 balanced = false;
                 break;
             }
         }
     }
 
-    println!("{} is {} balnced!", test, if balanced { "" } else { "not" });
+    if !stack2.is_empty() {
+        balanced = false;
+    }
+
+    println!("{} is {} balanced!", test, if balanced { "" } else { "not" });
 }
